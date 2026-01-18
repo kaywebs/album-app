@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Album</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+        label { display: block; margin-top: 1rem; font-weight: bold; }
+        input[type="text"], input[type="date"], textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+        .section { border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; border-radius: 8px; background: #f9f9f9; }
+        .track-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .track-row input { margin-top: 0; }
+        button { cursor: pointer; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; margin-top: 1rem; }
+        button:hover { background: #0056b3; }
+        button.secondary { background: #6c757d; }
+        button.secondary:hover { background: #5a6268; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+    <h1>Add New Album</h1>
+    <form action="/api/add-album" method="POST" enctype="multipart/form-data" onsubmit="prepareTracks()">
+        
+        <div class="section">
+            <h3>Basic Info</h3>
+            <label>Title: <input type="text" name="title" required></label>
+            <label>Artist: <input type="text" name="artist" value="kwebspost" required></label>
+            <label>Slug (optional, auto-generated if empty): <input type="text" name="slug"></label>
+            <label>Release Date: <input type="text" name="releaseDate" placeholder="YYYY-MM-DD" required></label>
+            <label>Label: <input type="text" name="label" value="Mental Strain Records"></label>
+            <label>Release Number: <input type="text" name="releaseNumber"></label>
+            <label>Description: <textarea name="description" rows="3"></textarea></label>
+        </div>
+
+        <div class="section">
+            <h3>Media</h3>
+            <label>Cover Image (jpg/png): <input type="file" name="cover" accept="image/*" required></label>
+            <label>Featured Song / Playing Song Title: <input type="text" name="playingSongTitle" required></label>
+            <label>Audio File for Featured Song (mp3): <input type="file" name="audio" accept="audio/mpeg"></label>
+            <small>This file will be renamed to match the album slug (e.g., slug.mp3) automatically.</small>
+        </div>
+
+        <div class="section">
+            <h3>Credits</h3>
+            <label>Producer: <input type="text" name="creditProducer" value="Tyler Witkowski"></label>
+            <label>Mixer: <input type="text" name="creditMixer" value="Tyler Witkowski"></label>
+            <label>Mastering Engineer: <input type="text" name="creditMastering" value="Tyler Witkowski"></label>
+            <label>Artist Credit: <input type="text" name="creditArtist" value="Tyler Witkowski"></label>
+        </div>
+
+        <div class="section">
+            <h3>Links</h3>
+            <label>Spotify: <input type="text" name="linkSpotify"></label>
+            <label>Apple Music: <input type="text" name="linkApple"></label>
+            <label>YouTube: <input type="text" name="linkYoutube"></label>
+            <label>Bandcamp: <input type="text" name="linkBandcamp"></label>
+        </div>
+
+        <div class="section">
+            <h3>Tracks</h3>
+            <div id="tracks-container">
+                <!-- Track rows will go here -->
+            </div>
+            <button type="button" class="secondary" onclick="addTrackRow()">+ Add Track</button>
+            <input type="hidden" name="tracks" id="tracks-json">
+        </div>
+
+        <button type="submit">Add Album</button>
+    </form>
+
+    <script>
+        function addTrackRow() {
+            const container = document.getElementById('tracks-container');
+            const div = document.createElement('div');
+            div.className = 'track-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Track Title" class="track-title" required style="flex: 2;">
+                <input type="text" placeholder="Length (e.g. 3:45)" class="track-length" required style="flex: 1;">
+                <button type="button" class="danger" onclick="this.parentElement.remove()" style="margin-top:0;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function prepareTracks() {
+            const rows = document.querySelectorAll('.track-row');
+            const tracks = [];
+            rows.forEach(row => {
+                const title = row.querySelector('.track-title').value;
+                const length = row.querySelector('.track-length').value;
+                if (title && length) {
+                    tracks.push({ title, length });
+                }
+            });
+            document.getElementById('tracks-json').value = JSON.stringify(tracks);
+        }
+
+        // Add one empty track row by default
+        addTrackRow();
+    </script>
+</body>
+</html>
